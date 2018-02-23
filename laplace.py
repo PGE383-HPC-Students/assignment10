@@ -6,6 +6,9 @@ import iterate
 
 
 class Grid:
+    """
+        Simple class to generate a computational grid and apply boundary conditions.
+    """
     
     def __init__(self, nx=10, ny=10, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0):
         
@@ -40,8 +43,14 @@ class Grid:
         
 
 class LaplaceSolver(Grid):
+    """
+        Class that solves the Laplace equation in 2D 
+    """
     
     def iterate(self):
+        """
+            A Python (slow) implementation of a finite difference iteration
+        """
         
         u = self.u
         
@@ -66,30 +75,32 @@ class LaplaceSolver(Grid):
 
         return np.sqrt(err)
     
-    def swig_iterate(self):
-        
-        return 
-        
                 
-    def solve(self, max_iterations=10000, tolerence=1.0e-16, quiet=False):        
+    def solve(self, max_iterations=10000, tolerance=1.0e-16, quiet=False):        
+        """
+            Calls iterate() sequentially until the error is reduced below a tolerance.
+        """
         
         for i in range(max_iterations):
         
             error = self.iterate()
             
-            if error < tolerence:
+            if error < tolerance:
                 if not quiet:
                     print("Solution converged in " + str(i) + " iterations.")
                 break
                 
                 
-    def swig_solve(self, max_iterations=10000, tolerence=1.0e-16, quiet=False):        
+    def swig_solve(self, max_iterations=10000, tolerance=1.0e-16, quiet=False):        
+        """
+            Calls iterate.iterate() sequentially until the error is reduced below a tolerance.
+        """
         
         for i in range(max_iterations):
         
             error = iterate.iterate(self.u, self.dx, self.dy)
             
-            if error < tolerence:
+            if error < tolerance:
                 if not quiet:
                     print("Solution converged in " + str(i) + " iterations.")
                 break
