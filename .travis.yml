@@ -1,0 +1,19 @@
+sudo: false
+language: python
+env:
+  - ASSIGNMENT=assignment10
+install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda install python=3.6 numpy scipy matplotlib swig
+  - pip install -q nose2
+  - "curl -H \"Authorization: token ${GH_TOKEN}\" -H 'Accept: application/vnd.github.v3.raw' -O --location \"https://api.github.com/repos/PGE383-HPC/${ASSIGNMENT}/contents/test.py\""
+  - swig -python iterate.i
+  - gcc -shared iterate*.c -o _iterate.so -L$CONDA_PREFIX/lib -lpython3.6m -I$CONDA_PREFIX/include/python3.6m -I$CONDA_PREFIX/lib/python3.6/site-packages/numpy/core/include
+script:
+  - nose2
