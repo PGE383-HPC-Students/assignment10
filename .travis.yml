@@ -10,7 +10,7 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda install numpy scipy matplotlib numba nbconver ipython
+  - conda install numpy scipy matplotlib numba nbconvert ipython
   - "curl -H \"Authorization: token ${GH_TOKEN}\" -H 'Accept: application/vnd.github.v3.raw' -O --location \"https://api.github.com/repos/PGE383-HPC/${ASSIGNMENT}/contents/test.py\""
 script:
   - python test.py
