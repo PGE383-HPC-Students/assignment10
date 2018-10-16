@@ -2,7 +2,34 @@
 
 
 import numpy as np
-import iterate
+from numba import njit
+
+@njit
+def numba_iterate(u, dx, dy):
+    """
+        A Python (slow) implementation of a finite difference iteration
+    """
+    
+    nx, ny = u.shape        
+    
+    dx2, dy2 = dx ** 2, dy ** 2
+    
+    err = 0.0
+    
+    for i in range(1, nx - 1):
+        
+        for j in range(1, ny - 1):
+            
+            tmp = u[i,j]
+            
+            u[i,j] = ((u[i-1, j] + u[i+1, j]) * dy2 +
+                      (u[i, j-1] + u[i, j+1]) * dx2) / (dx2 + dy2) / 2
+            
+            diff = u[i,j] - tmp
+            
+            err += diff * diff
+
+    return np.sqrt(err)
 
 
 class Grid:
@@ -19,7 +46,7 @@ class Grid:
         
         self.dy = (ymax - ymin) / (ny - 1)
         
-        self.u = np.zeros((nx, ny), dtype=np.double)
+        self.u = np.zeros((ny, nx), dtype=np.double)
         
 
     def set_boundary_condtion(self, side = 'top', boundary_condition_function = lambda x,y: 0.0):
@@ -28,18 +55,18 @@ class Grid:
         
         xmax, ymax = self.xmax, self.ymax
         
-        x = np.arange(xmin, xmax + self.dx * 0.5, self.dx)
+        x = np.linspace(xmin, xmax, self.nx)
         
-        y = np.arange(ymin, ymax + self.dy * 0.5, self.dy)
+        y = np.linspace(ymin, ymax, self.ny)
         
         if side == 'bottom':
-            self.u[0 ,:] = boundary_condition_function(xmin,y)
+            self.u[0 ,:] = boundary_condition_function(ymax,x)
         elif side == 'top':
-            self.u[-1 ,:] = boundary_condition_function(xmin,y)
+            self.u[-1 ,:] = boundary_condition_function(ymin,x)
         elif side == 'left':
             self.u[:, 0] = boundary_condition_function(xmin,y)
         elif side == 'right':
-            self.u[:, -1] = boundary_condition_function(xmin,y)
+            self.u[:, -1] = boundary_condition_function(xmax,y)
         
 
 class LaplaceSolver(Grid):
@@ -90,21 +117,25 @@ class LaplaceSolver(Grid):
                     print("Solution converged in " + str(i) + " iterations.")
                 break
                 
-                
-    def swig_solve(self, max_iterations=10000, tolerance=1.0e-16, quiet=False):        
+    @staticmethod
+    @njit
+    def __numba_solve(u, dx, dy, max_iterations=10000, tolerance=1.0e-16):        
         """
             Calls iterate.iterate() sequentially until the error is reduced below a tolerance.
         """
         
         for i in range(max_iterations):
         
-            error = iterate.iterate(self.u, self.dx, self.dy)
+            error = numba_iterate(u, dx, dy)
             
             if error < tolerance:
-                if not quiet:
-                    print("Solution converged in " + str(i) + " iterations.")
-                break
-                
+                return int(i)
+
+    def numba_solve(self, max_iterations=10000, tolerance=1.0e-16, quiet=False):        
+        iterations = self.__numba_solve(self.u, self.dx, self.dy, max_iterations, tolerance)
+        if not quiet:
+            print("Solution converged in " + str(iterations) + " iterations.")
+        return 
                 
     def get_solution(self):
         return self.u
