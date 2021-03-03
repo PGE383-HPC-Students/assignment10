@@ -1,0 +1,22 @@
+env:
+  ASSIGNMENT: assignment8
+on: push
+jobs:
+  conda:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: environment.yml
+      - name: Fetch Tests 
+        shell: bash -l {0}
+        run: |
+          curl \
+          --header 'Authorization: token ${{secrets.PGE383_SECRET_TOKEN}}' \
+          --header 'Accept: application/vnd.github.v3.raw' \
+          -O --location "https://api.github.com/repos/PGE383-HPC/${ASSIGNMENT}/contents/test.py" \
+          -O --location "https://api.github.com/repos/PGE383-HPC/${ASSIGNMENT}/contents/data_private.dat"
+      - name: Run Tests 
+        shell: bash -l {0}
+        run: python test.py

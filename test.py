@@ -1,5 +1,18 @@
-#!/usr/bin/env python
-
+#/usr/bin/env python
+#
+# Copyright 2020-2021 John T. Foster
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from laplace import LaplaceSolver
 import numpy as np
 import unittest
@@ -46,10 +59,10 @@ class TestSolution(unittest.TestCase):
         np.testing.assert_allclose(solver.get_solution(), np.array([[14. , 14. , 14. ],
                                                                     [ 0. ,  3.5,  0. ],
                                                                     [ 0. ,  0. ,  0. ]], dtype=np.double), atol=0.01)
-        
-        
+
+
     def test_timing(self):
-        
+
         solver = LaplaceSolver()
         solver.set_boundary_condtion('top', lambda x,y: 10)
         solver.set_boundary_condtion('bottom', lambda x,y: 10)
@@ -64,10 +77,9 @@ class TestSolution(unittest.TestCase):
         solver.numba_solve(quiet=True)
         end = time.time()
         t2 = end - start
-        
+
         assert t1 / t2 > 10.0
-        
-        
-        
+
+
 if __name__ == '__main__':
         unittest.main()
