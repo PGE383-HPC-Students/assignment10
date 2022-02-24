@@ -1,0 +1,33 @@
+env:
+  ASSIGNMENT: assignment10
+on: push
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '1.7'
+        os:
+          - ubuntu-latest
+        arch:
+          - x64
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fetch Tests 
+        shell: bash -l {0}
+        run: |
+          cd test
+          curl \
+          --header 'Authorization: token ${{secrets.PGE383_SECRET_TOKEN}}' \
+          --header 'Accept: application/vnd.github.v3.raw' \
+          -O --location "https://api.github.com/repos/PGE383-HPC/${ASSIGNMENT}/contents/test/runtests.jl"
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+      - uses: julia-actions/cache@v1
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/julia-runtest@v1
