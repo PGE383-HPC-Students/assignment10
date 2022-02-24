@@ -4,7 +4,7 @@ A simple "tank" model for gas flow from a well controlled by pressure is
 
 $$
 \frac{V_p T_s}{P_s T}\frac{d}{dt}\left(\frac{P(t)}{z\left(P(t), T)\right)}\right) + J \left(P(t)^2
-- P_{wf}^2\right)^n
+- P_{wf}^2\right)^n = 0
 $$
 
 where $P(t)$ is the tank pressure, $T$ is the tank temperature (constant),
